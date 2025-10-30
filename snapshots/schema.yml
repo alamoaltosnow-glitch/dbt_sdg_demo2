@@ -1,0 +1,21 @@
+version: 2
+sources:
+  - name: tpch_sf1_nose
+    database: SNOWFLAKE_SAMPLE_DATA  
+    schema: TPCH_SF1  
+    tables:      
+     - name: customer      
+     - name: orders      
+     - name: lineitem
+
+  - name: snapshots               # nombre del esquema/logical source
+    database: DWH_SDG_DEMO        # opcional, si tu base de datos no es la default
+    schema: raw_vault   # esquema en Snowflake
+    tables:
+      - name: sat_customer    # nombre de la tabla
+
+  - name: esquema_snapshot2    # nombre del esquema/logical source
+    database: db_mytest        # opcional, si tu base de datos no es la default
+    schema: sc_test            # esquema en Snowflake
+    tables:
+      - name: scd2_customers    # nombre de la tabla

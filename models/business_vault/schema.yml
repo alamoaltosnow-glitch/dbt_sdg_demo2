@@ -1,0 +1,51 @@
+version: 2
+
+#sources:
+  #- name: stg_orders_date
+  #  database: DWH_SDG_DEMO
+  #  schema: raw_vault
+  #  tables:
+  #    - name: stg_orders
+      
+
+models:
+
+  - name: buv_order_byline
+    description: "Business vault for ORDER_BYLINE from raw_vault"
+
+  - name: buv_calendar
+    description: "Business vault for Calendar  table generated"
+
+  - name: buv_customer
+    description: "Business vault de CUSTOMER from raw_vault"
+   # columns:      
+      #- name: c_custid
+       # tests:          
+        #  - not_null
+         # - unique
+
+  - name: buv_part
+    description: "Business vault de PART from raw_vault"
+
+  - name: buv_order
+    description: "Business vault de ORDER from raw_vault"
+
+  - name: buv_supplier
+    description: "Business vault de SUPPLIER from raw_vault"  
+
+  - name: buv_order_status
+    description: "Business vault for ORDER_STATUS code & descriptions from raw_vault"
+
+  - name: buv_line_status
+    description: "Business vault for LINE_STATUS code & descriptions from raw_vault"
+
+  - name: buv_line_returnflag
+    description: "Business vault for RETURN_FLAG code & descriptions from raw_vault"
+
+  - name: buv_customer_snap
+    description: "Business vault de CUSTOMER from raw_vault_snapshots"
+    columns:      
+      - name: c_custid
+        #tests:               # - not_null
+
+          

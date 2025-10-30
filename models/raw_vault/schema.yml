@@ -1,0 +1,318 @@
+version: 2
+#sources:
+#- name: tpch_sf1kkkk
+#  database: SNOWFLAKE_SAMPLE_DATA
+#  schema: TPCH_SF1
+#  tables:
+#   - name: customer
+#   - name: orders
+#   - name: lineitem
+
+#- name: esquema_snapshot1    # nombre del esquema/logical source
+#  database: db_mytest        # opcional, si tu base de datos no es la default
+#  schema: sc_test            # esquema en Snowflake
+#  tables:
+#    - name: scd2_customers    # nombre de la tabla
+
+models:
+  #hubs----------------------------------------------------
+  - name: hub_customer
+    description: "CUSTOMER Hub"
+    columns:
+      - name: hub_customer_hk
+        tests: [unique, not_null]
+      - name: customer_bk
+        description: "Business key from source (C_CUSTKEY)."
+      - name: c_custkey
+        tests:
+          - not_null
+          - unique
+
+  - name: hub_order
+    description: "ORDER Hub"
+    columns:
+      - name: o_orderkey
+        tests:
+          - not_null
+          - unique
+
+  - name: hub_part
+    description: "PART Hub"
+    columns:
+      - name: p_partkey
+        tests:
+          - not_null
+          - unique
+
+  - name: hub_supplier
+    description: "SUPPLIER Hub"
+    columns:
+      - name: s_suppkey
+        tests:
+          - not_null
+          - unique
+
+  #sat----------------------------------------------------
+  - name: sat_customer
+    description: "Satellite for customer descriptive attributes from TPCH_SF1. Tracks changes in customer details over time."
+    columns:
+      - name: hub_customer_hk
+        description: "Hash key referencing hub_customer."
+        tests:
+          - relationships:
+              arguments:
+                to: ref('hub_customer')
+                field: hub_customer_hk
+      - name: c_name
+        description: "Customer name."
+      - name: c_address
+        description: "Customer address."
+      - name: c_nationkey
+        description: "Reference to nation key."
+      - name: c_phone
+        description: "Customer phone number."
+      - name: c_acctbal
+        description: "Account balance."
+      - name: c_mktsegment
+        description: "Market segment classification."
+      - name: c_comment
+        description: "Customer comments."
+      - name: load_date
+        description: "Timestamp when the record was loaded."
+        tests: [not_null]
+      - name: record_source
+        description: "Indicates the source system of the record."
+        tests: [not_null]
+
+  - name: sat_supplier
+    description: "Satellite for supplier descriptive attributes from TPCH_SF1. Tracks supplier information and changes over time."
+    columns:
+      - name: hub_supplier_hk
+        description: "Hash key referencing hub_supplier."
+        tests:
+          - relationships:
+              arguments:
+                to: ref('hub_supplier')
+                field: hub_supplier_hk
+      - name: s_name
+        description: "Supplier name."
+      - name: s_address
+        description: "Supplier address."
+      - name: s_nationkey
+        description: "Reference to nation key."
+      - name: s_phone
+        description: "Supplier phone number."
+      - name: s_acctbal
+        description: "Supplier account balance."
+      - name: s_comment
+        description: "Supplier comments."
+      - name: load_date
+        description: "Timestamp when the record was loaded."
+        tests: [not_null]
+      - name: record_source
+        description: "Indicates the source system of the record."
+        tests: [not_null]
+  - name: sat_order
+    description: "Satellite for order descriptive attributes. Contains order status, pricing, and customer info changes."
+    columns:
+      - name: hub_order_hk
+        description: "Hash key referencing hub_order."
+        tests:
+          - relationships:
+              arguments:
+                to: ref('hub_order')
+                field: hub_order_hk
+      - name: o_orderstatus
+        description: "Order status code."
+      - name: o_totalprice
+        description: "Total price of the order."
+      - name: o_orderdate
+        description: "Date when the order was placed."
+      - name: o_orderpriority
+        description: "Order priority level."
+      - name: o_clerk
+        description: "Clerk responsible for the order."
+      - name: o_shippriority
+        description: "Shipping priority indicator."
+      - name: o_comment
+        description: "Additional order comments."
+      - name: load_date
+        description: "Timestamp when the record was loaded."
+        tests: [not_null]
+      - name: record_source
+        description: "Source system for the record."
+        tests: [not_null]
+
+  - name: sat_part
+    description: "Satellite containing descriptive attributes for parts, including brand, size, and retail price."
+    columns:
+      - name: hub_part_hk
+        description: "Hash key referencing hub_part."
+        tests:
+          - relationships:
+              arguments:
+                to: ref('hub_part_hk')
+                field: hub_part_hk
+      - name: p_name
+        description: "Part name."
+      - name: p_mfgr
+        description: "Manufacturer of the part."
+      - name: p_brand
+        description: "Brand name."
+      - name: p_type
+        description: "Part type."
+      - name: p_size
+        description: "Part size."
+      - name: p_container
+        description: "Packaging container type."
+      - name: p_retailprice
+        description: "Retail price of the part."
+      - name: p_comment
+        description: "Comment about the part."
+      - name: load_date
+        description: "Timestamp when the record was loaded."
+        tests: [not_null]
+      - name: record_source
+        description: "Source system of the record."
+        tests: [not_null]
+  - name: sat_part_supplier
+    description: "Satellite for part-supplier relationships containing availability and cost details."
+    columns:
+      - name: link_part_supplier_hk
+        description: "Hash key referencing link_part_supplier."
+        tests:
+          - relationships:
+              arguments:
+                to: ref('link_part_supplier')
+                field: link_part_supplier_hk
+      - name: ps_availqty
+        description: "Available quantity for the part-supplier combination."
+      - name: ps_supplycost
+        description: "Supply cost per unit."
+      - name: ps_comment
+        description: "Comments or notes about the part-supplier relationship."
+      - name: load_date
+        description: "Timestamp when the record was loaded."
+        tests: [not_null]
+      - name: record_source
+        description: "Indicates the source system of the record."
+        tests: [not_null]
+
+  - name: sat_lineitem
+    description: "Satellite storing descriptive and transactional details for line items. Tracks pricing, quantity, and delivery info per line."
+    columns:
+      - name: link_order_lineitem_hk
+        description: "Hash key referencing link_order_lineitem."
+        tests:
+          - relationships:
+              arguments:
+                to: ref('link_order_lineitem')
+                field: link_order_lineitem_hk
+      - name: l_linenumber
+        description: "Line number within the order."
+      - name: l_quantity
+        description: "Quantity ordered."
+      - name: l_extendedprice
+        description: "Total extended price for the line item."
+      - name: l_discount
+        description: "Discount applied to the item."
+      - name: l_tax
+        description: "Tax applied."
+      - name: l_returnflag
+        description: "Return flag status."
+      - name: l_linestatus
+        description: "Line status flag."
+      - name: l_shipdate
+        description: "Shipping date."
+      - name: l_commitdate
+        description: "Commit date."
+      - name: l_receiptdate
+        description: "Receipt date."
+      - name: l_shipinstruct
+        description: "Shipping instructions."
+      - name: l_shipmode
+        description: "Shipping mode."
+      - name: l_comment
+        description: "Free-form comment field."
+      - name: load_date
+        description: "Timestamp when the record was loaded."
+        tests: [not_null]
+      - name: record_source
+        description: "Indicates the source system of the record."
+        tests: [not_null]
+
+  #link----------------------------------------------------
+  - name: link_order_customer
+    description: "Link connecting orders and customers."
+    columns:
+      - name: link_order_customer_hk
+        tests: [unique, not_null]
+      - name: hub_order_hk
+        tests:
+          - relationships:
+              arguments:
+                to: ref('hub_order')
+                field: hub_order_hk
+
+      - name: hub_customer_hk
+        tests:
+          - relationships:
+              arguments:
+                to: ref('hub_customer')
+                field: hub_customer_hk
+
+  - name: link_part_supplier
+    description: "Link connecting part and suppliers through partsupp data."
+    columns:
+      - name: link_part_supplier_hk
+        tests: [unique, not_null]
+      - name: hub_part_supplier_hk
+        tests:
+          - relationships:
+              arguments:
+                to: ref('hub_part')
+                field: hub_part_hk
+      - name: hub_supplier_hk
+        tests:
+          - relationships:
+              arguments:
+                to: ref('hub_supplier')
+                field: hub_supplier_hk
+
+  - name: link_order_lineitem
+    description: "Link table connecting orders and line items from TPCH data."
+    columns:
+      - name: link_order_lineitem_hk
+        description: "Hash key of the link between order and lineitem, part and supp"
+        tests:
+          - unique
+          - not_null
+
+      - name: hub_order_hk
+        description: "Hash key of the order (FK to hub_order)."
+        tests:
+          - relationships:
+              arguments:
+                to: ref('hub_order')
+                field: hub_order_hk
+
+      - name: hub_part_hk
+        description: "Hash key of the part (FK to hub_part)."
+        tests:
+          - relationships:
+              arguments:
+                to: ref('hub_part')
+                field: hub_part_hk
+
+      - name: hub_supplier_hk
+        description: "Hash key of the part (FK to hub_supplier)."
+        tests:
+          - relationships:
+              arguments:
+                to: ref('hub_supplier')
+                field: hub_supplier_hk
+
+      - name: load_date
+        description: "Load timestamp of the record."
+      - name: record_source
+        description: "Source system of the record."

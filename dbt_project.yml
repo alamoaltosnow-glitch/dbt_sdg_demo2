@@ -1,0 +1,35 @@
+name: 'tpch_datavault'
+version: '1.0'
+config-version: 2
+
+profile: 'tpch_datavault_profile'
+model-paths: ["models"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+models:
+  tpch_datavault:
+    staging:
+      +materialized: view
+      +database: DWH_SDG_DEMO
+      +schema: RAW_VAULT
+    raw_vault:
+      +database: DWH_SDG_DEMO
+      +schema: RAW_VAULT
+      +tags: ['raw_vault']
+    business_vault:
+      +database: DWH_SDG_DEMO
+      +schema: BUSINESS_VAULT
+    data_mart:
+      +database: DWH_SDG_DEMO
+      +schema: DATA_MART
+      +materialized: table
+    +meta:
+      raw_vault_snapshots:
+        +database: DWH_SDG_DEMO
+        +schema: raw_vault_snapshots
+
+#generate_schema_name: "{{ schema | trim }}"
+
+
+flags:
+  require_generic_test_arguments_property: true

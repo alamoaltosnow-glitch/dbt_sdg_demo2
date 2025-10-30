@@ -1,0 +1,7 @@
+{% macro dv_hashkk(*cols) -%}
+{%- set items = [] -%}
+{%- for c in cols -%}
+  {%- do items.append("coalesce(cast(" ~ c ~ " as string),'')") -%}
+{%- endfor -%}
+lower(md5(concat({{ items | join(",'|',") }})))
+{%- endmacro %}

@@ -1,0 +1,60 @@
+version: 2
+models:
+  - name: dim_customer
+    description: "Customer dimension generated from business vault"
+   # columns:
+    #  - name: hub_customer_hk
+     #   description: "Hash key referencing bv customer."
+      #  tests:
+       #   - relationships:
+        #      arguments:
+         #       to: ref('hub_customer_hk')
+          #      field: hub_customer_hk
+
+  - name: dim_supplier
+    description: "Part dimension generated from business vault"
+
+  - name: dim_part
+    description: "Part dimension generated from business vault"
+
+  - name: dim_order
+    description: "Order dimension generated from business vault"
+
+  - name: dim_calendar
+    description: "Calendar dimension table generated"
+    columns:
+      - name: date_key
+        description: "Surrogate key in YYYYMMDD format."
+        tests:
+          - not_null
+          - unique
+      - name: full_date
+        description: "Full calendar date."
+        tests:
+          - not_null
+      - name: year_number
+        description: "Calendar year number."
+      - name: month_number
+        description: "Month number (1-12)."
+      - name: month_name
+        description: "Month name."
+      - name: day_name
+        description: "Day name."
+      - name: is_weekend
+        description: "TRUE if the day is Saturday or Sunday."
+  - name: dim_order_status
+    description: "Lookup dimension translating order status codes from the Orders table into descriptive text."
+    columns:
+      - name: order_status_code
+        description: "Raw order status code (O = Open, F = Filled, P = Pending)."
+        tests:
+          - unique
+          - not_null
+      - name: order_status_desc
+        description: "Human-readable description of the order status."
+      - name: load_date
+        description: "Timestamp when the record was created in the data mart."        
+  - name: dim_line_status
+    description: "Lookup dimension translating order status codes from the line table into descriptive text."
+  - name: dim_line_returnflag
+    description: "Lookup dimension translating return flag codes from the line table into descriptive text."

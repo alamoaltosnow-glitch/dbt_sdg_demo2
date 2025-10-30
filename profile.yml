@@ -1,0 +1,14 @@
+tpch_datavault_profile:  
+  target: dev  
+  outputs:    
+    dev:      
+      type: snowflake
+      account: BFKWOMQ-QF38853
+      user: agoniali
+      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      role: ACCOUNTADMIN
+      warehouse: COMPUTE_WH
+      database: DWH_SDG_DEMO
+      schema: RAW_VAULT     
+      threads: 4      
+      client_session_keep_alive: False

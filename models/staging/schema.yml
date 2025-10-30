@@ -1,0 +1,82 @@
+version: 2
+sources:
+  - name: tpch_sf1
+    database: SNOWFLAKE_SAMPLE_DATA_AG  
+    schema: TPCH_SF1  
+    tables:      
+     - name: customer      
+     - name: lineitem
+     - name: nation
+     - name: orders
+     - name: part
+     - name: partsupp
+     - name: region
+     - name: supplier
+models:
+  - name: stg_customer
+    description: "Staging de CUSTOMER"
+    columns:      
+      - name: c_custkey
+        tests:          
+          - not_null
+          - unique
+
+  - name: stg_orders
+    description: "Staging de ORDERS"
+    columns:      
+      - name: c_orderkey
+        tests:          
+          - not_null
+          - unique
+
+  - name: stg_lineitem
+    description: "Staging de LINEITEM"
+    columns:      
+      - name: l_orderkey
+        tests:          
+          - not_null
+      - name: l_linenumber
+        tests:          
+          - not_null                        
+
+  - name: stg_supplier
+    description: "Staging de SUPPLIER"
+    columns:      
+      - name: s_suppkey
+        tests:          
+          - not_null
+          - unique
+
+  - name: stg_part
+    description: "Staging de PART"
+    columns:      
+      - name: p_partkey
+        tests:          
+          - not_null
+          - unique
+
+  - name: stg_partsupp
+    description: "Staging de PARTSUPP"
+    columns:      
+      - name: ps_partkey
+        tests:          
+          - not_null
+      - name: ps_suppkey
+        tests:          
+          - not_null    
+
+  - name: stg_nation
+    description: "Staging de NATION"
+    columns:      
+      - name: n_nationtkey
+        tests:          
+          - not_null
+          - unique
+
+  - name: stg_region
+    description: "Staging de REGION"
+    columns:      
+      - name: r_regiontkey
+        tests:          
+          - not_null
+          - unique           
